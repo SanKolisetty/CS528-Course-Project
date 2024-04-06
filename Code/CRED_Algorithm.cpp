@@ -1,7 +1,16 @@
 #include "Definitions.cpp"
 using namespace std;
 
-bool comparator(pair<Chunk, int> a, pair<Chunk, int> b)
+void display_toschedule(vector<pair<int, int>> to_schedule)
+{
+    for (auto i : to_schedule)
+    {
+        cout << "{" << i.first << "," << i.second << "} ";
+    }
+    cout << endl;
+}
+
+bool comparator(pair<int, int> a, pair<int, int> b)
 {
     if (a.second < b.second)
         return false;
@@ -11,14 +20,14 @@ bool comparator(pair<Chunk, int> a, pair<Chunk, int> b)
 
 vector<pair<int, int>> calculate_chunk_sum(vector<pair<int, int>> to_schedule)
 {
-    map<Chunk, int> total_time;
+    map<int, int> total_time;
 
     for (int i = 0; i < to_schedule.size(); i++)
     {
-        total_time[job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].first] += job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].second;
+        total_time[job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id] += job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
     }
 
-    vector<pair<Chunk, int>> chunks_time;
+    vector<pair<int, int>> chunks_time;
 
     for (auto it : total_time)
     {
@@ -33,7 +42,7 @@ vector<pair<int, int>> calculate_chunk_sum(vector<pair<int, int>> to_schedule)
     {
         for (int j = 0; j < to_schedule.size(); j++)
         {
-            if (job_set[to_schedule[j].first].chunk_set[to_schedule[j].second].first.id == chunks_time[i].first.id)
+            if (job_set[to_schedule[j].first]->chunk_set[to_schedule[j].second].first->id == chunks_time[i].first)
             {
                 temp.push_back(to_schedule[j]);
             }
@@ -42,28 +51,89 @@ vector<pair<int, int>> calculate_chunk_sum(vector<pair<int, int>> to_schedule)
     return temp;
 }
 
-int sum_timeslots(vector<pair<int, int>> to_schedule, int i, int j)
+int sum_timeslots_head(vector<pair<int, int>> to_schedule)
 {
+    set<int> chunks;
     int sum = 0;
-    for (int k = i; k <= min(j, int(to_schedule.size() - 1)); k++)
+
+    for (int i = 0; i < to_schedule.size(); i++)
     {
-        sum += job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].second;
+        chunks.insert(job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id);
+        if (chunks.size() <= B)
+        {
+            sum += job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
+        }
+        else
+        {
+            break;
+        }
     }
+
     return sum;
 }
 
-pair<int, int> finding_tail(vector<pair<int, int>> to_schedule, int d)
+set<int> sum_timeslots_tail(vector<pair<int, int>> to_schedule, int d)
 {
-    int b = min(B, int(to_schedule.size()));
-    int current_sum = 0;
-    for (int i = to_schedule.size() - 1; i >= 0; i--)
+    map<int, int> total_time;
+
+    for (int i = 0; i < to_schedule.size(); i++)
     {
-        current_sum = sum_timeslots(to_schedule, i - b + 1, i);
-        if (current_sum > S * d)
+        total_time[job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id] += job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
+    }
+
+    set<pair<int, int>> chunks;
+    set<int> chunk_ids;
+    int sum = 0;
+
+    for (auto it : total_time)
+    {
+        chunks.insert({it.second, it.first});
+    }
+
+    auto it = chunks.begin();
+    auto start_it = chunks.begin();
+
+    while (chunk_ids.size() < B && it != chunks.end())
+    {
+        chunk_ids.insert(it->second);
+        sum += it->first;
+        it++;
+    }
+
+    if (chunks.size() < B)
+    {
+        return chunk_ids;
+    }
+
+    while (sum < S * d)
+    {
+        int id = start_it->second;
+        int time_left = start_it->first;
+
+        chunk_ids.erase(id);
+        sum -= time_left;
+
+        chunk_ids.insert(it->second);
+        sum += it->first;
+
+        it++;
+        start_it++;
+    }
+
+    return chunk_ids;
+}
+
+vector<pair<int, int>> finding_tail(vector<pair<int, int>> to_schedule, set<int> chunk_ids)
+{
+    vector<pair<int, int>> tail_chunks;
+    for (int i = 0; i < to_schedule.size(); i++)
+    {
+        if (chunk_ids.count(job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id))
         {
-            return {i - b + 1, i};
+            tail_chunks.push_back(to_schedule[i]);
         }
     }
+    return tail_chunks;
 }
 
 int remaining_timeslots(Node *node, int d)
@@ -86,7 +156,7 @@ void remove_chunk(vector<pair<int, int>> &to_schedule)
 {
     for (int i = 0; i < to_schedule.size(); i++)
     {
-        if (job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].second == 0)
+        if (job_set[to_schedule[i].first]->chunk_set[to_schedule[i].second].second == 0)
         {
             to_schedule.erase(to_schedule.begin() + i);
             i--;
@@ -94,29 +164,53 @@ void remove_chunk(vector<pair<int, int>> &to_schedule)
     }
 }
 
-void allot_slots(Node *node, Job *job, Chunk chunk, int d, int time_slot_req)
+// void allot_slots(Node *node, Job *job, Chunk chunk, int d, int time_slot_req)
+// {
+//     for (int i = 0; i < S; i++)
+//     {
+//         for (int j = 0; j < d; j++)
+//         {
+//             if (node->vm_schedule[i][j] == make_pair(-1, -1))
+//             {
+//                 // total_timeslots++;
+//             }
+//         }
+//     }
+// }
+
+void vm_scheduling(Node *node, pair<int, int> chunk, int time_req, int d)
 {
+
     for (int i = 0; i < S; i++)
     {
         for (int j = 0; j < d; j++)
         {
+            if (time_req == 0)
+                break;
             if (node->vm_schedule[i][j] == make_pair(-1, -1))
             {
-                // total_timeslots++;
+                node->vm_schedule[i][j] = chunk;
+                time_req--;
             }
         }
+        if (time_req == 0)
+            break;
     }
 }
 
-void schedule(Node *node, vector<pair<int, int>> &to_schedule, int d)
+void schedule(Node *node, vector<pair<int, int>> &tail_chunks, int d)
 {
     int NTS = remaining_timeslots(node, d);
-    reverse(to_schedule.begin(), to_schedule.end());
+    // cout<< "NTS : "<<NTS<<endl;
+    tail_chunks = calculate_chunk_sum(tail_chunks);
+    reverse(tail_chunks.begin(), tail_chunks.end());
+    // cout<<"HELLOO ";
+    // display_toschedule(tail_chunks);
 
-    for (int i = 0; i < to_schedule.size(); i++)
+    for (int i = 0; i < tail_chunks.size(); i++)
     {
-        Chunk current_chunk = job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].first;
-        int time_slot_req = job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].second;
+        int current_chunk = job_set[tail_chunks[i].first]->chunk_set[tail_chunks[i].second].first->id;
+        int time_slot_req = job_set[tail_chunks[i].first]->chunk_set[tail_chunks[i].second].second;
 
         if (node->node_chunk.count(current_chunk) || node->node_chunk.size() < B)
         {
@@ -124,59 +218,95 @@ void schedule(Node *node, vector<pair<int, int>> &to_schedule, int d)
             if (time_slot_req > NTS)
             {
                 time_slot_req -= NTS;
+                job_set[tail_chunks[i].first]->chunk_set[tail_chunks[i].second].second = time_slot_req;
+                vm_scheduling(node, tail_chunks[i], NTS, d);
                 NTS = 0;
-                job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].second = time_slot_req;
                 break;
             }
             else
             {
                 NTS -= time_slot_req;
-                job_set[to_schedule[i].first].chunk_set[to_schedule[i].second].second = 0;
+                job_set[tail_chunks[i].first]->chunk_set[tail_chunks[i].second].second = 0;
+                vm_scheduling(node, tail_chunks[i], time_slot_req, d);
             }
         }
     }
-    remove_chunk(to_schedule);
+    remove_chunk(tail_chunks);
 }
 
-void delete_indices(vector <pair<int,int>> &schedule, int i, int j)
+void delete_indices(vector<pair<int, int>> &schedule, set<int> chunk_ids)
 {
-    for(int k = i; k <= j; k++)
+    auto it = schedule.begin();
+    while (it != schedule.end())
     {
-        schedule.erase(schedule.begin()+k);
+        int id = job_set[it->first]->chunk_set[it->second].first->id;
+        if (chunk_ids.count(id))
+        {
+            schedule.erase(it);
+            it--;
+        }
+        it++;
     }
 }
 
-int cred_s(vector<pair<int, int>> &to_schedule, int d)
+set<int> select_b_chunks(vector<pair<int, int>> &schedule)
+{
+    set<int> chunk_ids;
+
+    for (int i = 0; i < schedule.size(); i++)
+    {
+        chunk_ids.insert(job_set[schedule[i].first]->chunk_set[schedule[i].second].first->id);
+        if (chunk_ids.size() == B)
+        {
+            return chunk_ids;
+        }
+    }
+    return chunk_ids;
+}
+
+void cred_s(vector<pair<int, int>> &to_schedule, int d)
 {
     int total_nodes = 0;
     while (to_schedule.size() > 0)
     {
         to_schedule = calculate_chunk_sum(to_schedule);
-        if (sum_timeslots(to_schedule, 0, B - 1) > S * d)
+        cout << "calculted chunk sum" << endl;
+
+        // display_toschedule(to_schedule);
+
+        cout << "Processing time req :" << job_set[to_schedule[0].first]->chunk_set[to_schedule[0].second].second << endl;
+
+        if (sum_timeslots_head(to_schedule) > S * d)
         {
-            // Finding the tail and creating a list for scheduling
-            pair<int, int> tail_indices = finding_tail(to_schedule, d);
-            vector <pair<int,int>> tail_to_schedule(tail_indices.second - tail_indices.first+1);
-            copy(to_schedule.begin() + tail_indices.first, to_schedule.begin() + tail_indices.second+1, tail_to_schedule.begin());
+            set<int> chunk_ids = sum_timeslots_tail(to_schedule, d);
+            vector<pair<int, int>> tail_chunks = finding_tail(to_schedule, chunk_ids);
+            
+            // cout<<"Tail Chunks:"<<endl;
+            // display_toschedule(tail_chunks);
 
             // Delete the chunks sent for scheduling from the main list of chunks
-            delete_indices(to_schedule,tail_indices.first, tail_indices.second);
+            delete_indices(to_schedule, chunk_ids);
 
+            // cout<<"Size : "<< to_schedule.size()<<endl;       
             // Declare the node
-            Node * node = new Node();
-            
+            Node *node = new Node();
+            cout << "BEFORE1 :" << endl;
+            Print();
             // Schedule the node
-            schedule(node, tail_to_schedule, d);
+            schedule(node, tail_chunks, d);
 
             // Increment and push the node
             total_nodes++;
             active_nodes.push_back(node);
             nodes_created[d].push_back(node);
 
-            // Add the chunks which were not scheduled back to main list 
-            for(int i = 0; i < tail_to_schedule.size(); i++)
+            cout << "AFTER1 :" << endl;
+            Print();
+
+            // Add the chunks which were not scheduled back to main list
+            for (int i = 0; i < tail_chunks.size(); i++)
             {
-                to_schedule.push_back(tail_to_schedule[i]);
+                to_schedule.push_back(tail_chunks[i]);
             }
         }
         else
@@ -186,50 +316,46 @@ int cred_s(vector<pair<int, int>> &to_schedule, int d)
     }
     while (to_schedule.size() > 0)
     {
-        // Node * node = new Node();
-        // schedule(node, to_schedule, d);
-        // total_nodes++;
-        // active_nodes.push_back(node);
-        // nodes_created[d].push_back(node);
-
-        // Finding the tail and creating a list for scheduling
-        vector <pair<int,int>> tail_to_schedule(min(B, int(to_schedule.size())));
-        copy(to_schedule.begin(), to_schedule.begin() + min(B, int(to_schedule.size())), tail_to_schedule.begin());
+        set<int> chunk_ids = select_b_chunks(to_schedule);
+        vector<pair<int, int>> tail_chunks = finding_tail(to_schedule, chunk_ids);
 
         // Delete the chunks sent for scheduling from the main list of chunks
-        delete_indices(to_schedule,0, min(B, int(to_schedule.size()))-1);
+        delete_indices(to_schedule, chunk_ids);
 
         // Declare the node
-        Node * node = new Node();
-        
+        Node *node = new Node();
+        cout << "BEFORE2 :" << endl;
+        Print();
         // Schedule the node
-        schedule(node, tail_to_schedule, d);
+        schedule(node, tail_chunks, d);
 
         // Increment and push the node
         total_nodes++;
         active_nodes.push_back(node);
         nodes_created[d].push_back(node);
+        cout << "AFTER2 :" << endl;
+        Print();
 
-        // Add the chunks which were not scheduled back to main list 
-        for(int i = 0; i < tail_to_schedule.size(); i++)
+        // Add the chunks which were not scheduled back to main list
+        for (int i = 0; i < tail_chunks.size(); i++)
         {
-            to_schedule.push_back(tail_to_schedule[i]);
+            to_schedule.push_back(tail_chunks[i]);
         }
     }
 }
 
-vector <pair<int,int>> find_jobs(int d)
+vector<pair<int, int>> find_jobs(int d)
 {
-    vector <pair<int,int>> jobs_deadline;
-    for(int i = 0; i < job_set.size(); i++)
+    vector<pair<int, int>> jobs_deadline;
+    for (int i = 0; i < job_set.size(); i++)
     {
-        if(job_set[i].deadline == d)
+        if (job_set[i]->deadline == d)
         {
-            for(int j = 0; j < job_set[i].chunk_set.size(); j++)
+            for (int j = 0; j < job_set[i]->chunk_set.size(); j++)
             {
-                if(job_set[i].chunk_set[j].second != 0)
+                if (job_set[i]->chunk_set[j].second != 0)
                 {
-                    jobs_deadline.push_back({i,j});
+                    jobs_deadline.push_back({i, j});
                 }
             }
         }
@@ -237,22 +363,32 @@ vector <pair<int,int>> find_jobs(int d)
     return jobs_deadline;
 }
 
-int cred_m()
+void cred_m()
 {
-    int total_active_nodes = 0;
-    int current_deadline_nodes = 0;
-    for(auto it = deadlines.begin(); it != deadlines.end(); it++)
+    cout << " AAAYAA" << endl;
+
+    for (auto deadline = deadlines.begin(); deadline != deadlines.end(); deadline++)
     {
-        vector <pair<int,int>> jobs_given_deadline = find_jobs(*it);
-        current_deadline_nodes = cred_s(jobs_given_deadline,*it);
-        for(int i = 0; i < nodes_created[*it].size(); i++)
-        {   
-            for(auto it1 = it; it1 != deadlines.end(); it++)
+        int current_deadline = *deadline;
+        cout << current_deadline << endl;
+
+        vector<pair<int, int>> focus_jobs = find_jobs(current_deadline);
+
+        cout << "Jobs found" << endl;
+
+        cred_s(focus_jobs, current_deadline);
+
+        cout << "Cred s hua" << endl;
+
+        for (int n = 0; n < active_nodes.size(); n++)
+        {
+            auto it = deadline;
+            it++;
+            for (; it != deadlines.end(); it++)
             {
-                vector <pair<int,int>> jobs_new_deadline = find_jobs(*it1);
-                schedule(nodes_created[*it][i], jobs_new_deadline, *it1);
+                focus_jobs = find_jobs(*it);
+                schedule(active_nodes[n], focus_jobs, *it);
             }
         }
-        total_active_nodes += current_deadline_nodes;
     }
 }
