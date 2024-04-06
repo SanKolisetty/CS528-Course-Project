@@ -29,6 +29,7 @@ for (int i = 0; i < J; i++)
     chunk_set.clear();
     cout << "Enter processing time and deadline"<<endl;
     cin >> processing_time >> deadline;
+    deadlines.insert(deadline);
     Latest_Deadline = max(Latest_Deadline,deadline);
     cout << "Enter total number of chunks required";
     cin >> chunk_set_size;

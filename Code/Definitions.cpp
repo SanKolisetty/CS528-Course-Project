@@ -46,8 +46,9 @@ int J;
 int Latest_Deadline = 0;
 vector<Chunk> cloud_dfs;
 vector<Job> job_set;
-vector<Node> active_nodes;
-
+vector<Node *> active_nodes;
+set <int> deadlines;
+map <int,vector<Node *>> nodes_created;
 // vector <int,int> to_schedule;
 
 // a, b;
