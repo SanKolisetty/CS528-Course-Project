@@ -270,11 +270,11 @@ void cred_s(vector<pair<int, int>> &to_schedule, int d)
     while (to_schedule.size() > 0)
     {
         to_schedule = calculate_chunk_sum(to_schedule);
-        cout << "calculted chunk sum" << endl;
+        // cout << "calculted chunk sum" << endl;
 
         // display_toschedule(to_schedule);
 
-        cout << "Processing time req :" << job_set[to_schedule[0].first]->chunk_set[to_schedule[0].second].second << endl;
+        // cout << "Processing time req :" << job_set[to_schedule[0].first]->chunk_set[to_schedule[0].second].second << endl;
 
         if (sum_timeslots_head(to_schedule) > S * d)
         {
@@ -290,8 +290,8 @@ void cred_s(vector<pair<int, int>> &to_schedule, int d)
             // cout<<"Size : "<< to_schedule.size()<<endl;       
             // Declare the node
             Node *node = new Node();
-            cout << "BEFORE1 :" << endl;
-            Print();
+            // cout << "BEFORE1 :" << endl;
+            // Print();
             // Schedule the node
             schedule(node, tail_chunks, d);
 
@@ -300,8 +300,8 @@ void cred_s(vector<pair<int, int>> &to_schedule, int d)
             active_nodes.push_back(node);
             nodes_created[d].push_back(node);
 
-            cout << "AFTER1 :" << endl;
-            Print();
+            // cout << "AFTER1 :" << endl;
+            // Print();
 
             // Add the chunks which were not scheduled back to main list
             for (int i = 0; i < tail_chunks.size(); i++)
@@ -324,8 +324,8 @@ void cred_s(vector<pair<int, int>> &to_schedule, int d)
 
         // Declare the node
         Node *node = new Node();
-        cout << "BEFORE2 :" << endl;
-        Print();
+        // cout << "BEFORE2 :" << endl;
+        // Print();
         // Schedule the node
         schedule(node, tail_chunks, d);
 
@@ -333,8 +333,8 @@ void cred_s(vector<pair<int, int>> &to_schedule, int d)
         total_nodes++;
         active_nodes.push_back(node);
         nodes_created[d].push_back(node);
-        cout << "AFTER2 :" << endl;
-        Print();
+        // cout << "AFTER2 :" << endl;
+        // Print();
 
         // Add the chunks which were not scheduled back to main list
         for (int i = 0; i < tail_chunks.size(); i++)
@@ -365,7 +365,7 @@ vector<pair<int, int>> find_jobs(int d)
 
 void cred_m()
 {
-    cout << " AAAYAA" << endl;
+    // cout << " AAAYAA" << endl;
 
     for (auto deadline = deadlines.begin(); deadline != deadlines.end(); deadline++)
     {
@@ -374,11 +374,11 @@ void cred_m()
 
         vector<pair<int, int>> focus_jobs = find_jobs(current_deadline);
 
-        cout << "Jobs found" << endl;
+        // cout << "Jobs found" << endl;
 
         cred_s(focus_jobs, current_deadline);
 
-        cout << "Cred s hua" << endl;
+        // cout << "Cred s hua" << endl;
 
         for (int n = 0; n < active_nodes.size(); n++)
         {
