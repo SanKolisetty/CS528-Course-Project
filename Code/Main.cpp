@@ -55,7 +55,7 @@ int main()
     }
     cred_m();
 
-    Print();
+    Print(active_nodes);
 
     cout << "Total active nodes required are " << active_nodes.size() << endl;
 

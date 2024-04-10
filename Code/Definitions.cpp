@@ -41,10 +41,12 @@ typedef class Node
     public:
     set<int> node_chunk;
     vector<vector<pair<int, int>>> vm_schedule;
+    vector<set<int>> vm_timeslot_chunks;
 
     Node()
     {
         this->vm_schedule.resize(S, vector<pair<int, int>>(Latest_Deadline, {-1, -1}));
+        this->vm_timeslot_chunks.resize(Latest_Deadline);
     }
 
 } Node;
@@ -55,7 +57,7 @@ vector<Node *> active_nodes;
 set<int> deadlines;
 map<int, vector<Node *>> nodes_created;
 
-void Print()
+void Print(vector<Node *> active_nodes)
 {
     bool scheduled = false;
     FILE *fp = fopen("Output.txt", "w");
