@@ -1,5 +1,6 @@
 // #include "Definitions.cpp"
-#include "CRED_Algorithm.cpp"
+// #include "CRED_Algorithm.cpp"
+#include "FirstFit_Algorithm.cpp"
 using namespace std;
 
 int main()
@@ -53,11 +54,16 @@ int main()
         Job*job =  new Job(i, chunk_set, processing_time, deadline);
         job_set[i] = job;
     }
-    cred_m();
+    job_set_ffa =  job_set;
 
-    Print(active_nodes);
+    // cred_m();
+    // Print(active_nodes);
 
-    cout << "Total active nodes required are " << active_nodes.size() << endl;
+    first_fit();
+    Print(active_nodes_ffa);
+
+
+    // cout << "Total active nodes required are " << active_nodes.size() << endl;
 
     return 0;
 }

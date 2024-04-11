@@ -53,7 +53,9 @@ typedef class Node
 
 vector<Chunk*> cloud_dfs;
 vector<Job*> job_set;
+vector<Job*> job_set_ffa;
 vector<Node *> active_nodes;
+vector<Node *> active_nodes_ffa;
 set<int> deadlines;
 map<int, vector<Node *>> nodes_created;
 
