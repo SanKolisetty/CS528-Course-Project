@@ -1,7 +1,9 @@
 // #include "Definitions.cpp"
 // #include "CRED_Algorithm.cpp"
 // #include "FirstFit_Algorithm.cpp"
+//#include "ShortestJobFirst_Algorithm.cpp"
 #include "ShortestDeadline_Algorithm.cpp"
+
 using namespace std;
 
 int main()
@@ -58,11 +60,16 @@ int main()
     }
     job_set_ffa = job_set;
     job_set_sda = job_set;
+    job_set_sjf =  job_set;
+
     // cred_m();
     // Print(active_nodes);
 
     // first_fit();
     // Print(active_nodes_ffa);
+
+   // sjf();
+   // Print(active_nodes_sjf);
 
     shortest_deadline_first();
     Print(active_nodes_sda);
