@@ -54,7 +54,6 @@ void schedule(vector<pair<int, int>> &to_schedule, int d)
             active_nodes_ffa.push_back(node);
         }
     }
-
 }
 
 vector<pair<int, int>> find_chunk_set(Job *job)

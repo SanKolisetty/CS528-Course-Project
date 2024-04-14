@@ -17,6 +17,10 @@ typedef class Chunk
     {
         this->id = id;
     }
+
+    // Copy constructor
+    Chunk(const Chunk& other) : id(other.id) {}
+
 } Chunk;
 
 typedef class Job
@@ -34,6 +38,11 @@ typedef class Job
         this->processing_time = processing_time;
         this->deadline = deadline;
     }
+
+    // Copy constructor
+    Job(const Job& other)
+        : id(other.id), chunk_set(other.chunk_set), processing_time(other.processing_time), deadline(other.deadline) {}
+
 } Job;
 
 typedef class Node
@@ -49,12 +58,18 @@ typedef class Node
         this->vm_timeslot_chunks.resize(Latest_Deadline);
     }
 
+    // Copy constructor
+    Node(Node* other)
+        : node_chunk(other->node_chunk), vm_schedule(other->vm_schedule), vm_timeslot_chunks(other->vm_timeslot_chunks) {}
+
 } Node;
 
 vector<Chunk*> cloud_dfs;
 vector<Job*> job_set;
+vector<Job*> job_set_sjf;
 vector<Job*> job_set_ffa;
 vector<Node *> active_nodes;
+vector<Node *> active_nodes_sjf;
 vector<Node *> active_nodes_ffa;
 set<int> deadlines;
 map<int, vector<Node *>> nodes_created;
