@@ -29,7 +29,7 @@ void vm_scheduling_ffa(Node *node, pair<int, int> chunk, int time_req, int d)
     job_set[chunk.first]->chunk_set[chunk.second].second = time_req;
 }
 
-void schedule(vector<pair<int, int>> &to_schedule, int d)
+void schedule_ffa(vector<pair<int, int>> &to_schedule, int d)
 {
     int cur_tot_nodes = active_nodes_ffa.size();
 
@@ -56,7 +56,7 @@ void schedule(vector<pair<int, int>> &to_schedule, int d)
     }
 }
 
-vector<pair<int, int>> find_chunk_set(Job *job)
+vector<pair<int, int>> find_chunk_set_ffa(Job *job)
 {
     vector<pair<int, int>> chunk_set;
     int chunks_len = job->chunk_set.size();
@@ -77,7 +77,7 @@ void first_fit()
     {
         Job *job = job_set_ffa[i];
         int d = job->deadline;
-        vector<pair<int, int>> to_schedule = find_chunk_set(job);
-        schedule(to_schedule, d);
+        vector<pair<int, int>> to_schedule = find_chunk_set_ffa(job);
+        schedule_ffa(to_schedule, d);
     }
 }

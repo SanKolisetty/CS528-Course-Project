@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#ifndef DEFS_H
+#define DEFS_H
 using namespace std;
 
 int B;
@@ -77,10 +79,52 @@ vector<Node *> active_nodes_sda;
 set<int> deadlines;
 map<int, vector<Node *>> nodes_created;
 
-void Print(vector<Node *> active_nodes)
+// void Print(vector<Node *> active_nodes, FILE * fp)
+// {
+//     bool scheduled = false;
+//     // FILE *fp = fopen("Output.txt", "w");
+//     for (int t = 0; t < Latest_Deadline; t++)
+//     {
+//         for (int n = 0; n < active_nodes.size(); n++)
+//         {
+//             for (int vm = 0; vm < S; vm++)
+//             {
+//                 if(active_nodes[n]->vm_schedule[vm][t].first != -1)
+//                 {
+//                     scheduled = true;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         if(scheduled)
+//         {
+//             fprintf(fp, "Time %d %3c\n", t,' ');
+//             for (int n = 0; n < active_nodes.size(); n++)
+//             {
+//                 fprintf(fp, "Node %d %3c ", n,' ');
+//                 for (int vm = 0; vm < S; vm++)
+//                 {
+//                     if(active_nodes[n]->vm_schedule[vm][t].first != -1)
+//                         fprintf(fp, "Job %d : Chunk %d   |   ", active_nodes[n]->vm_schedule[vm][t].first, job_set[active_nodes[n]->vm_schedule[vm][t].first]->chunk_set[active_nodes[n]->vm_schedule[vm][t].second].first->id);
+//                         // cout << "Job " << active_nodes[n]->vm_schedule[vm][t].first << " : Chunk " << job_set[active_nodes[n]->vm_schedule[vm][t].first]->chunk_set[active_nodes[n]->vm_schedule[vm][t].second].first->id << "   |   " ;
+//                     else
+//                         fprintf(fp, "Job N : Chunk N   |   ");
+//                 }
+//                 fprintf(fp, "\n");
+//             }
+//         }
+
+//         scheduled = false;
+//     }
+// }
+
+void Print(vector<Node *> active_nodes, string output)
 {
+    string path = "./console/Output_"+output+".txt";
+    ofstream fp(path);
     bool scheduled = false;
-    FILE *fp = fopen("Output.txt", "w");
+    // FILE *fp = fopen("Output.txt", "w");
     for (int t = 0; t < Latest_Deadline; t++)
     {
         for (int n = 0; n < active_nodes.size(); n++)
@@ -97,27 +141,41 @@ void Print(vector<Node *> active_nodes)
 
         if(scheduled)
         {
-            fprintf(fp, "Time %d %3c\n", t,' ');
+            // fprintf(fp, "Time %d %3c\n", t,' ');
+            fp << "Time "<< t <<"   "<<endl;
             for (int n = 0; n < active_nodes.size(); n++)
             {
-                fprintf(fp, "Node %d %3c ", n,' ');
+                // fprintf(fp, "Node %d %3c ", n,' ');
+                fp << "Node "<<n<<"   ";
                 for (int vm = 0; vm < S; vm++)
                 {
                     if(active_nodes[n]->vm_schedule[vm][t].first != -1)
-                        fprintf(fp, "Job %d : Chunk %d   |   ", active_nodes[n]->vm_schedule[vm][t].first, job_set[active_nodes[n]->vm_schedule[vm][t].first]->chunk_set[active_nodes[n]->vm_schedule[vm][t].second].first->id);
+                    {
+                        // fprintf(fp, "Job %d : Chunk %d   |   ", active_nodes[n]->vm_schedule[vm][t].first, job_set[active_nodes[n]->vm_schedule[vm][t].first]->chunk_set[active_nodes[n]->vm_schedule[vm][t].second].first->id);
                         // cout << "Job " << active_nodes[n]->vm_schedule[vm][t].first << " : Chunk " << job_set[active_nodes[n]->vm_schedule[vm][t].first]->chunk_set[active_nodes[n]->vm_schedule[vm][t].second].first->id << "   |   " ;
+                        int job = active_nodes[n]->vm_schedule[vm][t].first;
+                        int chunk = job_set[active_nodes[n]->vm_schedule[vm][t].first]->chunk_set[active_nodes[n]->vm_schedule[vm][t].second].first->id;
+                        fp << "Job "<<job<<" : Chunk "<<chunk<<"   |   ";
+                    }
                     else
-                        fprintf(fp, "Job N : Chunk N   |   ");
+                    {
+                        // fprintf(fp, "Job N : Chunk N   |   ");
+                        fp << "Job N : Chunk N   |   ";
+                    }
                 }
-                fprintf(fp, "\n");
+                // fprintf(fp, "\n");
+                fp << endl;
             }
         }
 
         scheduled = false;
     }
+    fp.close();
 }
 // vector <int,int> to_schedule;
 
 // a, b;
 
 // job_set[a].chunk_set[b].second
+
+#endif // DEFS_H

@@ -1,0 +1,16 @@
+Time 0   
+Node 0   Job 1 : Chunk 3   |   
+Node 1   Job 1 : Chunk 2   |   
+Node 2   Job 1 : Chunk 1   |   
+Time 1   
+Node 0   Job 2 : Chunk 4   |   
+Node 1   Job 0 : Chunk 0   |   
+Node 2   Job 0 : Chunk 0   |   
+Time 2   
+Node 0   Job 2 : Chunk 4   |   
+Node 1   Job 0 : Chunk 0   |   
+Node 2   Job 0 : Chunk 0   |   
+Time 3   
+Node 0   Job 2 : Chunk 4   |   
+Node 1   Job 0 : Chunk 0   |   
+Node 2   Job 0 : Chunk 0   |   

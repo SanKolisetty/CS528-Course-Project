@@ -58,7 +58,7 @@ void vm_scheduling_sjf(Node *node, pair<int, int> chunk, int time_req, int d, ve
     job_set_sjf_copy[chunk.first]->chunk_set[chunk.second].second = time_req;
 }
 
-int schedule(vector<pair<int, int>> to_schedule, int d)
+int schedule_sjf(vector<pair<int, int>> to_schedule, int d)
 {
     vector<Node *> active_nodes_sjf_copy;
     int extra_nodes = 0;
@@ -150,7 +150,7 @@ void schedule_real(vector<pair<int, int>> to_schedule, int d)
     }
 }
 
-vector<pair<int, int>> find_chunk_set(Job *job)
+vector<pair<int, int>> find_chunk_set_sjf(Job *job)
 {
     vector<pair<int, int>> chunk_set;
     int chunks_len = job->chunk_set.size();
@@ -171,8 +171,8 @@ vector<pair<int, int>> extra_nodes_required(vector<Job *> to_schedule)
     {
         if (scheduled[i] == 0)
         {
-            vector<pair<int, int>> chunk_set = find_chunk_set(to_schedule[i]);
-            extra = schedule(chunk_set, to_schedule[i]->deadline);
+            vector<pair<int, int>> chunk_set = find_chunk_set_sjf(to_schedule[i]);
+            extra = schedule_sjf(chunk_set, to_schedule[i]->deadline);
             extra_nodes.push_back({extra, i});
         }
         else
@@ -207,7 +207,7 @@ void sjf()
 
         sort(extra_nodes.begin(), extra_nodes.end());
 
-        vector<pair<int, int>> chunks_milgaye = find_chunk_set(job_set_sjf[extra_nodes[0].second]);
+        vector<pair<int, int>> chunks_milgaye = find_chunk_set_sjf(job_set_sjf[extra_nodes[0].second]);
 
         schedule_real(chunks_milgaye, job_set_sjf[extra_nodes[0].second]->deadline);
 
