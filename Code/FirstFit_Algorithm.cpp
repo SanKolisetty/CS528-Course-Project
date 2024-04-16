@@ -53,6 +53,7 @@ void schedule_ffa(vector<pair<int, int>> &to_schedule, int d)
             time_slot_req = job_set_ffa[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
             active_nodes_ffa.push_back(node);
         }
+
     }
 }
 

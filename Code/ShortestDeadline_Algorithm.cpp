@@ -31,6 +31,7 @@ void vm_scheduling_sda(Node *node, pair<int, int> chunk, int time_req, int d)
 
 void schedule_sda(vector<pair<int, int>> &to_schedule, int d)
 {
+
     int cur_tot_nodes = active_nodes_sda.size();
 
     for (int i = 0; i < to_schedule.size(); i++)
@@ -70,18 +71,33 @@ vector<pair<int, int>> find_chunk_set_sda(Job *job)
     return chunk_set;
 }
 
+
+bool compareJobsByDeadline(const Job* a, const Job* b) {
+    return a->deadline < b->deadline;
+}
+
+// Function to sort and store in a new vector
+vector<Job*> sortJobsByDeadline(const vector<Job*>& job_set_sda) {
+    // Create a copy of the input vector
+    vector<Job*> job_set_sda_sorted = job_set_sda;
+
+    // Sort the copied vector using the custom comparator
+    sort(job_set_sda_sorted.begin(), job_set_sda_sorted.end(), compareJobsByDeadline);
+
+    return job_set_sda_sorted;
+}
+
+
+
 void shortest_deadline_first()
 {
     int job_num = job_set_sda.size();
 
-    // sort according to deadline
-    sort(job_set_sda.begin(), job_set_sda.end(), [](Job *a, Job *b) {
-        return a->deadline < b->deadline;
-    });
-
+vector<Job*> job_set_sda_sorted = sortJobsByDeadline(job_set_sda);
+ 
     for (int i = 0; i < job_num; i++)
     {
-        Job *job = job_set_sda[i];
+        Job *job = job_set_sda_sorted[i];
         int d = job->deadline;
         vector<pair<int, int>> to_schedule = find_chunk_set_sda(job);
         schedule_sda(to_schedule, d);

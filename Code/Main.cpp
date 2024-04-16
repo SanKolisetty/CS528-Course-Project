@@ -148,10 +148,12 @@ int main()
     // ofstream fp_cred("./console/Output_%s.txt",x);
 
     cred_m();
+    cout<<active_nodes.size()<<endl;
     Print(active_nodes,"cred");
     cout << "CRED done" << endl;
 
     first_fit();
+    cout<<active_nodes_ffa.size()<<endl;
     Print(active_nodes_ffa,"ffa");
     cout << "FFA done" << endl;
 
@@ -159,11 +161,12 @@ int main()
     // Print(active_nodes_sjf,"sjf");
     // cout << "SJF done" << endl;
 
-    // shortest_deadline_first();
-    // Print(active_nodes_sda,"sdf");
-    // cout << "SDA done" << endl;
+     shortest_deadline_first();
+     cout<<active_nodes_sda.size()<<endl;
+     Print(active_nodes_sda,"sdf");
+     cout << "SDA done" << endl;
 
-    // cout << "Total active nodes required are " << active_nodes.size() << endl;
+    // cout << "Total active nodes required are " << active_nodes_sda.size() << endl;
 
     return 0;
 }
