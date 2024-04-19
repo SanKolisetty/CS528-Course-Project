@@ -71,11 +71,11 @@ public:
 // Global variables and data structures
 vector<Chunk*> cloud_dfs;  // List of chunks available in the cloud
 vector<Job*> job_set;  // List of jobs
-vector<Job*> job_set_sjf;  // List of jobs sorted by Shortest Job First
-vector<Job*> job_set_ffa;  // List of jobs sorted by First Fit Allocation
-vector<Job*> job_set_sda;  // List of jobs sorted by Shortest Deadline Algorithm
+vector<Job*> job_set_greedy;  // List of jobs 
+vector<Job*> job_set_ffa;  // List of jobs 
+vector<Job*> job_set_sda;  // List of jobs 
 vector<Node *> active_nodes;  // List of active nodes
-vector<Node *> active_nodes_sjf;  // List of active nodes for SJF
+vector<Node *> active_nodes_greedy;  // List of active nodes for SJF
 vector<Node *> active_nodes_ffa;  // List of active nodes for FFA
 vector<Node *> active_nodes_sda;  // List of active nodes for SDA
 
@@ -126,12 +126,21 @@ void take_user_input()
             chunk_set[j] = {cloud_dfs[chunk_id], processing_time};
         }
 
-        Job*job =  new Job(i, chunk_set, processing_time, deadline);
+        Job * job =  new Job(i, chunk_set, processing_time, deadline);
+
+    
         job_set[i] = job;
-        job_set_ffa[i] = job;
-        job_set_sda[i] = job;
-        job_set_sjf[i] = job;
+        // cout << i <<endl;
+        // job_set_ffa[i] = job;
+        // cout << i <<endl;
+        // job_set_sda[i] = job;
+        // cout << i <<endl;
+        // job_set_greedy[i] = job;
+        // cout << i <<endl;
     }
+    job_set_ffa = job_set;
+    job_set_sda = job_set;
+    job_set_greedy = job_set;
 }
 
 
@@ -152,7 +161,7 @@ void take_file_input()
     job_set.resize(J);
     job_set_ffa.resize(J);
     job_set_sda.resize(J);
-    job_set_sjf.resize(J);
+    job_set_greedy.resize(J);
 
     int processing_time;
     int deadline;
@@ -183,7 +192,7 @@ void take_file_input()
         job_set[i] = job;
         job_set_ffa[i] = job;
         job_set_sda[i] = job;
-        job_set_sjf[i] = job;
+        job_set_greedy[i] = job;
     }
 }
 

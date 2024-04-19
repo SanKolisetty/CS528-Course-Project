@@ -2,7 +2,7 @@
 #include "Definitions.cpp"
 #include "CRED_Algorithm.cpp"
 #include "FirstFit_Algorithm.cpp"
-#include "ShortestJobFirst_Algorithm.cpp"
+#include "Greedy_Algorithm.cpp"
 #include "ShortestDeadline_Algorithm.cpp"
 using namespace std;
 
@@ -27,7 +27,7 @@ int main()
     cout << "What algorithm do you want to run?"<<endl;
     cout << "Enter 1 for CRED (Chunk-based Resource-aware Energy-efficient Deadline)"<<endl;
     cout << "Enter 2 for First Fit Algorithm"<<endl;
-    cout << "Enter 3 for Shortest Job First"<<endl;
+    cout << "Enter 3 for Greedy Algortihm"<<endl;
     cout << "Enter 4 for Shortest Deadline first"<<endl;
 
     int algo; cin>> algo;
@@ -46,9 +46,9 @@ int main()
     }
     if(algo == 3)
     {
-        sjf();
-        Print(active_nodes_sjf,"sjf");
-        cout << "SJF done, Nodes required are: " << active_nodes_sjf.size() << endl;
+        greedy();
+        Print(active_nodes_greedy,"greedy");
+        cout << "SJF done, Nodes required are: " << active_nodes_greedy.size() << endl;
     }
     if(algo == 4)
     {

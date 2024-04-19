@@ -3,11 +3,11 @@ using namespace std;
 
 vector<int> scheduled; // Vector to keep track of scheduled jobs
 
-// Function to make a deep copy of the job set using SJF algorithm
-vector<Job *> copyJobSetSJF(const vector<Job *> &original)
+// Function to make a deep copy of the job set using greedy algorithm
+vector<Job *> copyJobSetgreedy(const vector<Job *> &original)
 {
     // Creating a new vector to store copied jobs
-    vector<Job *> copiedJobSetSJF;
+    vector<Job *> copiedJobSetgreedy;
 
     // Looping through each job in the original job set
     for (const auto &jobPtr : original)
@@ -26,15 +26,15 @@ vector<Job *> copyJobSetSJF(const vector<Job *> &original)
 
         // Assigning the copied chunk set to the copied job
         copiedJob->chunk_set = copiedChunkSet;
-        copiedJobSetSJF.push_back(copiedJob); // Adding the copied job to the copied job set
+        copiedJobSetgreedy.push_back(copiedJob); // Adding the copied job to the copied job set
     }
-    return copiedJobSetSJF; // Returning the copied job set
+    return copiedJobSetgreedy; // Returning the copied job set
 }
 
-// Function to schedule a chunk using SJF algorithm
-void vm_scheduling_sjf(Node *node, pair<int, int> chunk, int time_req, int d, vector<Job *> &job_set_sjf_copy)
+// Function to schedule a chunk using greedy algorithm
+void vm_scheduling_greedy(Node *node, pair<int, int> chunk, int time_req, int d, vector<Job *> &job_set_greedy_copy)
 {
-    int current_chunk = job_set_sjf_copy[chunk.first]->chunk_set[chunk.second].first->id;
+    int current_chunk = job_set_greedy_copy[chunk.first]->chunk_set[chunk.second].first->id;
 
     // Looping through each timeslot
     for (int t = 0; t < d; t++)
@@ -71,54 +71,54 @@ void vm_scheduling_sjf(Node *node, pair<int, int> chunk, int time_req, int d, ve
             break;      // Exiting the loop after assigning the chunk
         }
     }
-    job_set_sjf_copy[chunk.first]->chunk_set[chunk.second].second = time_req; // Updating the time requirement for the chunk
+    job_set_greedy_copy[chunk.first]->chunk_set[chunk.second].second = time_req; // Updating the time requirement for the chunk
 }
 
-// Function to schedule chunks using SJF algorithm
-int schedule_sjf(vector<pair<int, int>> to_schedule, int d)
+// Function to schedule chunks using greedy algorithm
+int schedule_greedy(vector<pair<int, int>> to_schedule, int d)
 {
-    vector<Node *> active_nodes_sjf_copy; // Vector to store copies of active nodes
+    vector<Node *> active_nodes_greedy_copy; // Vector to store copies of active nodes
     int extra_nodes = 0; // Counter for extra nodes required
-    vector<Job *> job_set_sjf_copy = copyJobSetSJF(job_set_sjf); // Making a deep copy of the job set
+    vector<Job *> job_set_greedy_copy = copyJobSetgreedy(job_set_greedy); // Making a deep copy of the job set
 
     // Looping through each chunk to schedule
     for (int i = 0; i < to_schedule.size(); i++)
     {
-        int current_chunk = job_set_sjf_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id;
+        int current_chunk = job_set_greedy_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id;
 
         // Looping through each active node copy
-        for (int n = 0; n < active_nodes_sjf_copy.size(); n++)
+        for (int n = 0; n < active_nodes_greedy_copy.size(); n++)
         {
             // Creating a new node copy
-            Node node_new = new Node(active_nodes_sjf_copy[n]);
+            Node node_new = new Node(active_nodes_greedy_copy[n]);
             Node *node = &node_new;
-            int time_slot_req = job_set_sjf_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
+            int time_slot_req = job_set_greedy_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
 
             // If the chunk is already scheduled in the node or the node has available space, schedule the chunk
             if (node->node_chunk.count(current_chunk) || node->node_chunk.size() < B)
             {
-                vm_scheduling_sjf(node, to_schedule[i], time_slot_req, d, job_set_sjf_copy);
+                vm_scheduling_greedy(node, to_schedule[i], time_slot_req, d, job_set_greedy_copy);
             }
         }
 
         // Handling the case where the chunk cannot fit in any active node
-        int time_slot_req = job_set_sjf_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
+        int time_slot_req = job_set_greedy_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
         while (time_slot_req > 0)
         {
             Node *node = new Node(); // Creating a new node
-            vm_scheduling_sjf(node, to_schedule[i], time_slot_req, d, job_set_sjf_copy); // Scheduling the chunk in the new node
-            time_slot_req = job_set_sjf_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second; // Updating the time requirement
-            active_nodes_sjf_copy.push_back(node); // Adding the new node to the list of active nodes
+            vm_scheduling_greedy(node, to_schedule[i], time_slot_req, d, job_set_greedy_copy); // Scheduling the chunk in the new node
+            time_slot_req = job_set_greedy_copy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second; // Updating the time requirement
+            active_nodes_greedy_copy.push_back(node); // Adding the new node to the list of active nodes
             extra_nodes++; // Incrementing the extra nodes counter
         }
     }
     return extra_nodes; // Returning the number of extra nodes required
 }
 
-// Function to schedule a chunk using SJF algorithm in the actual scenario
-void vm_scheduling_sjf_real(Node *node, pair<int, int> chunk, int time_req, int d)
+// Function to schedule a chunk using greedy algorithm in the actual scenario
+void vm_scheduling_greedy_real(Node *node, pair<int, int> chunk, int time_req, int d)
 {
-    int current_chunk = job_set_sjf[chunk.first]->chunk_set[chunk.second].first->id;
+    int current_chunk = job_set_greedy[chunk.first]->chunk_set[chunk.second].first->id;
 
     // Looping through each timeslot
     for (int t = 0; t < d; t++)
@@ -155,46 +155,46 @@ void vm_scheduling_sjf_real(Node *node, pair<int, int> chunk, int time_req, int 
             break;      // Exiting the loop after assigning the chunk
         }
     }
-    job_set_sjf[chunk.first]->chunk_set[chunk.second].second = time_req; // Updating the time requirement for the chunk
+    job_set_greedy[chunk.first]->chunk_set[chunk.second].second = time_req; // Updating the time requirement for the chunk
 }
 
-// Function to schedule chunks using SJF algorithm in the actual scenario
+// Function to schedule chunks using greedy algorithm in the actual scenario
 void schedule_real(vector<pair<int, int>> to_schedule, int d)
 {
-    int cur_tot_nodes = active_nodes_sjf.size();
+    int cur_tot_nodes = active_nodes_greedy.size();
 
     // Looping through each chunk to schedule
     for (int i = 0; i < to_schedule.size(); i++)
     {
-        int current_chunk = job_set_sjf[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id;
+        int current_chunk = job_set_greedy[to_schedule[i].first]->chunk_set[to_schedule[i].second].first->id;
 
         // Looping through each active node
-        for (int n = 0; n < active_nodes_sjf.size(); n++)
+        for (int n = 0; n < active_nodes_greedy.size(); n++)
         {
-            Node *node = active_nodes_sjf[n];
-            int time_slot_req = job_set_sjf[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
+            Node *node = active_nodes_greedy[n];
+            int time_slot_req = job_set_greedy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
 
             // If the chunk is already scheduled in the node or the node has available space, schedule the chunk
             if (node->node_chunk.count(current_chunk) || node->node_chunk.size() < B)
             {
-                vm_scheduling_sjf_real(node, to_schedule[i], time_slot_req, d);
+                vm_scheduling_greedy_real(node, to_schedule[i], time_slot_req, d);
             }
         }
 
         // Handling the case where the chunk cannot fit in any active node
-        int time_slot_req = job_set_sjf[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
+        int time_slot_req = job_set_greedy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second;
         while (time_slot_req > 0)
         {
             Node *node = new Node(); // Creating a new node
-            vm_scheduling_sjf_real(node, to_schedule[i], time_slot_req, d); // Scheduling the chunk in the new node
-            time_slot_req = job_set_sjf[to_schedule[i].first]->chunk_set[to_schedule[i].second].second; // Updating the time requirement
-            active_nodes_sjf.push_back(node); // Adding the new node to the list of active nodes
+            vm_scheduling_greedy_real(node, to_schedule[i], time_slot_req, d); // Scheduling the chunk in the new node
+            time_slot_req = job_set_greedy[to_schedule[i].first]->chunk_set[to_schedule[i].second].second; // Updating the time requirement
+            active_nodes_greedy.push_back(node); // Adding the new node to the list of active nodes
         }
     }
 }
 
 // Function to find the chunk set of a job
-vector<pair<int, int>> find_chunk_set_sjf(Job *job)
+vector<pair<int, int>> find_chunk_set_greedy(Job *job)
 {
     vector<pair<int, int>> chunk_set;
     int chunks_len = job->chunk_set.size();
@@ -221,9 +221,9 @@ vector<pair<int, int>> extra_nodes_required(vector<Job *> to_schedule)
         if (scheduled[i] == 0)
         {
             // Finding the chunk set for the job
-            vector<pair<int, int>> chunk_set = find_chunk_set_sjf(to_schedule[i]);
+            vector<pair<int, int>> chunk_set = find_chunk_set_greedy(to_schedule[i]);
             // Calculating the extra nodes required for scheduling
-            extra = schedule_sjf(chunk_set, to_schedule[i]->deadline);
+            extra = schedule_greedy(chunk_set, to_schedule[i]->deadline);
             extra_nodes.push_back({extra, i}); // Adding the number of extra nodes required to the vector
         }
         else
@@ -248,11 +248,11 @@ int count_not_scheduled()
     return count; // Returning the count of jobs not yet scheduled
 }
 
-// Function to implement SJF algorithm for scheduling
-void sjf()
+// Function to implement greedy algorithm for scheduling
+void greedy()
 {
     // Initializing the scheduled vector
-    for (int i = 0; i < job_set_sjf.size(); i++)
+    for (int i = 0; i < job_set_greedy.size(); i++)
     {
         scheduled.push_back(0);
     }
@@ -261,16 +261,16 @@ void sjf()
     while (count_not_scheduled() > 0)
     {
         // Finding the extra nodes required for scheduling each job
-        vector<pair<int, int>> extra_nodes = extra_nodes_required(job_set_sjf);
+        vector<pair<int, int>> extra_nodes = extra_nodes_required(job_set_greedy);
 
         // Sorting the extra nodes vector
         sort(extra_nodes.begin(), extra_nodes.end());
 
         // Finding the chunk set for the job with the minimum extra nodes required
-        vector<pair<int, int>> chunks_milgaye = find_chunk_set_sjf(job_set_sjf[extra_nodes[0].second]);
+        vector<pair<int, int>> chunks_milgaye = find_chunk_set_greedy(job_set_greedy[extra_nodes[0].second]);
 
         // Scheduling the chunks
-        schedule_real(chunks_milgaye, job_set_sjf[extra_nodes[0].second]->deadline);
+        schedule_real(chunks_milgaye, job_set_greedy[extra_nodes[0].second]->deadline);
 
         // Marking the scheduled job as completed
         scheduled[extra_nodes[0].second] = 1;
