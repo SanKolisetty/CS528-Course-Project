@@ -1,1 +1,4 @@
-shortest_deadline_first
+
+    sjf();
+    Print(active_nodes_sjf,"sjf");
+    cout << "SJF done : " << active_nodes_sjf.size() << endl;
